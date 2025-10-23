@@ -98,7 +98,7 @@ rNoise <- function(n, k=2, bound=1){
 # ===============================================================================
 
 shide <- function(x, LB=NULL, UB=NULL, 
-                  m=10, k=2,  epsilon=1e-10,  
+                  m=10, k=3,  epsilon=1e-10,  
                   method.bound = c("opt", "perc"), c0=1, alpha=0.5,
                   plot.it=FALSE, nclass=NULL,
                   bw = "SJ", kernel = "epanechnikov",    # KDE OPTIONS
@@ -334,3 +334,4 @@ Summarize.MISE <- function(MISE) {
 
 
 #
+
