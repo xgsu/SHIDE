@@ -34,9 +34,9 @@ bound <- function(x, alpha=0.20) {
 # ===================================================================
 # Function bound.opt() computes OPTIMAL BOUND OR BANDWIDTH IN SHIDE
 # ===================================================================
-# Two approaches implemented
+# Two approaches implemented; k >= 3 is one necessary condition for theoretical analysis
 
-bound.opt <- function(x, k=2, c=1, 
+bound.opt <- function(x, k=3, c=1, 
                       alpha = 0.5,            # using median spacing
                       method.Psi=c("pilot.density", "normal.approx"))
 {
@@ -310,6 +310,7 @@ Summarize.MISE <- function(MISE) {
            median.n50, mad.n50, 
            median.n500, mad.n500)
 }
+
 
 
 
