@@ -6,7 +6,7 @@ source("Functions-SHIDE.R")
 # I. NORMAL 
 # ============
 
-set.seed(666)
+set.seed(1234)
 N <- c(50, 500)
 nrun <- 300
 mu0 <- 0; sigma0 <- 1   #  normal
@@ -54,10 +54,10 @@ MISE.normal <- MISE
 # II. GAUSSIAN MIXTURE MODEL (GMM)
 # ==================================
 
-set.seed(321)
+set.seed(123)
 N <- c(50, 500)
 nrun <- 300
-pi=0.35; mu1=-1;  sd1=1; mu2=2; sd2=2; # GMM
+pi=0.35; mu1=-1;  sd1=1; mu2=1; sd2=2; # GMM
 m <- 10; c0 <- 1; nclass <- NULL  # SHIDE related 
 MISE <- NULL
 for (k in 1:length(N)) {
@@ -99,7 +99,7 @@ MISE.GMM <- MISE
 # III. Cauchy Distribution 
 # ==========================
 
-set.seed(789)
+set.seed(123)
 N <- c(50, 500)
 nrun <- 300
 location = 0; scale = 1  #  Cauchy
@@ -107,6 +107,7 @@ m <- 10; c0 <- 1; nclass <- NULL  # SHIDE related
 MISE <- NULL
 for (k in 1:length(N)) {
   n <- N[k]
+  # m <- 50; nclass <- n   
   for (i in 1:nrun) {
     # generate data from GMM
     x <- rcauchy(n, location=location, scale=scale)
@@ -266,15 +267,16 @@ kable(MISE_summary,
 # --------------------------------------
 
 set.seed(7)
-x <- rcauchy(500, location=0, scale=1)
+n <- 500
+x <- rcauchy(n, location=0, scale=1)
 # 1. KDE
 d.KDE <- density(x, bw = "SJ", n = 1024)
 x0 <- d.KDE$x
 # 2(a) SHIDE - opt
-fit.shide <- shide(x, LB=NULL, UB=NULL, method.bound = "opt", nclass=100) 
+fit.shide <- shide(x, LB=NULL, UB=NULL, method.bound = "opt", m=20, nclass=n) 
 d.SHIDE <- predict.SHIDE(x.new=x0, fit.shide=fit.shide)
 # 2(b) SHIDE - per
-fit1.shide <- shide(x, LB=NULL, UB=NULL, method.bound = "per", nclass=100) 
+fit1.shide <- shide(x, LB=NULL, UB=NULL, method.bound = "per", m=20, nclass=n) 
 d1.SHIDE <- predict.SHIDE(x.new=x0, fit.shide=fit1.shide)  
 # True Density
 d.true <- list(x=x0, 

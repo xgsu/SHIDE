@@ -34,7 +34,8 @@ bound <- function(x, alpha=0.20) {
 # ===================================================================
 # Function bound.opt() computes OPTIMAL BOUND OR BANDWIDTH IN SHIDE
 # ===================================================================
-# Two approaches implemented; k >= 3 is one necessary condition for theoretical analysis
+# Two approaches implemented; 
+# k >= 3 is one necessary condition for theoretical analysis
 
 bound.opt <- function(x, k=3, c=1, 
                       alpha = 0.5,            # using median spacing
@@ -96,9 +97,10 @@ rNoise <- function(n, k=2, bound=1){
 # ===============================================================================
 # FUNCTION shide() ESTIMATES DENSITY BASED ON SIMULATION AND HISTOGRAM SMOOTHING
 # ===============================================================================
+# k >= 3 is one necessary condition for theoretical analysis
 
 shide <- function(x, LB=NULL, UB=NULL, 
-                  m=10, k=3,  epsilon=1e-10,  
+                  m=10, k=3,  epsilon=1e-10, nonnegativity.correction=TRUE,  
                   method.bound = c("opt", "perc"), c0=1, alpha=0.5,
                   plot.it=FALSE, nclass=NULL,
                   bw = "SJ", kernel = "epanechnikov",    # KDE OPTIONS
@@ -171,18 +173,21 @@ shide <- function(x, LB=NULL, UB=NULL,
   # names(hist.out)
   midpoints <- hist.out$mids
   # counts <- hist.out$counts
-  density <- hist.out$density 
+  d.hist <- hist.out$density
+  if (nonnegativity.correction) d.hist <- sqrt(hist.out$density)
+  # print(d.hist)
   # sum(density); cbind(counts/length(x0), density)
 
   # SMOOTH INTERPOLATION WITH HISTOGRAM
 
   # lines(midpoints, density, lty=1, col="blue", lwd=0.5) # LINEAR INTERPOLATION
-  fit.spline <- spline(x=midpoints, y=sqrt(density), method = "natural") # n=100) 
-  density.function <- splinefun(x=midpoints, y=sqrt(density), method = "natural")
+  fit.spline <- spline(x=midpoints, y=d.hist, method = "natural") # n=100) 
+  density.function <- splinefun(x=midpoints, y=d.hist, method = "natural")
   # names(fit.spline); cbind(midpoints, fit.spline$x) 
   
   # Adjust density estimates based on specified bounds
-  y <- (fit.spline$y)^2
+  y <- fit.spline$y
+  if (nonnegativity.correction) y <- (fit.spline$y)^2
   if (is.finite(LB)) y[fit.spline$x < LB] <- 0; 
   if (is.finite(UB)) y[fit.spline$x > UB] <- 0
   
@@ -192,6 +197,7 @@ shide <- function(x, LB=NULL, UB=NULL,
   }
 
   return(list(data.observed=x, data.simulated=x0, bd=bd, 
+              nonnegativity.correction=nonnegativity.correction, 
               fit.spline=fit.spline, x=fit.spline$x, y=y, 
               density.function=density.function, LB=LB, UB=UB, 
               fig.boxplot=fig.boxplot))
@@ -206,8 +212,10 @@ shide <- function(x, LB=NULL, UB=NULL,
 
 predict.SHIDE <- function(x.new, fit.shide) {
   f.den <- fit.shide$density.function
+  nonnegativity.correction <- fit.shide$nonnegativity.correction
   LB <- fit.shide$LB; UB <- fit.shide$UB
-  y <- (f.den(x.new))^2 #不要忘了平方! 
+  y <- f.den(x.new)
+  if (nonnegativity.correction) y <- (f.den(x.new))^2 #不要忘了平方! 
   # bound adjustment
   if (is.finite(LB)) y[x.new < LB] <- 0; 
   if (is.finite(UB)) y[x.new > UB] <- 0
@@ -332,6 +340,4 @@ Summarize.MISE <- function(MISE) {
 
 
 
-
 #
-
